@@ -1,0 +1,3 @@
+#!/home/rohit/Projects/audio_analysis/audio/bin/python3
+from numba.pycc import main
+main()
