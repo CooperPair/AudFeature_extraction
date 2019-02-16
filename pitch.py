@@ -1,19 +1,4 @@
-#! /usr/bin/env python
-
 # file for finding other features : 
-'''
-feature that is being extracted
-1. min_pitch
-2. max_pitch
-3. mean_pitch
-4. num_voice_breaks
-5. percentage_breaks
-6. speak_rate
-7. num_pause
-8. Total_dur_pause
-9. no. of rise
-10. no. of fall 
-'''
 import sys
 import wave
 import contextlib
@@ -21,8 +6,8 @@ from aubio import source, pitch
 import numpy as np
 import speech_recognition as sr
 import os 
-
-# for ignoring any warnings of required
+import crayons
+# for ignoring any warnings if required
 import warnings
 warnings.simplefilter("ignore")
 
@@ -44,6 +29,7 @@ for filename in os.listdir(directory):
 filename = sys.argv[1]
 
 # calculating pitch
+
 downsample = 1
 samplerate = 44100 // downsample
 if len( sys.argv ) > 2: samplerate = int(sys.argv[2])
@@ -103,17 +89,26 @@ for i in range(len(pitches_np)-1):
 
 print(count)
 per_breaks = (count/len(pitches_np))*100
-print(str(per_breaks)+"%")
-
+#print(str(per_breaks)+"%")
+print(crayons.yellow(f'\t[*] Number of voice breaks => {count}', bold=True))
+print(crayons.yellow(f'\t[*] Percentage of voice breaks => {round(per_breaks,3)}', bold=True))
 
 # finding min, max and mean pitch
 pitches_np_max = np.max(pitches_np)
-print(pitches_np_max)
-pitches_np_mean = np.mean(pitches_np)
-print(pitches_np_mean)
-pitches_np_min = np.min(pitches_np)
-print(pitches_np_min)
+print(crayons.red(f'\t[*] Maximum Pitch => {pitches_np_max}', bold=True))
 
+pitches_np_mean = np.mean(pitches_np)
+print(crayons.red(f'\t[*] Mean Pitch => {pitches_np_mean}', bold=True))
+pitches_np_min = np.min(pitches_np)
+print(crayons.red(f'\t[*] Minimum pitch => {pitches_np_min}', bold=True))
+
+with contextlib.closing(wave.open(filename, 'r')) as f :
+    frame = f.getnframes()
+    frame_float = float(frame)
+    rate = f.getframerate()
+
+    duration = frame / float(rate)
+    print(crayons.blue(f'\t[*] Total Duration of file => {duration}', bold=True))
 # finding total duration of pause that is when the pitch of the file is 0
 # num of pause, max dur pause, average pause(wrt when it starts again), total duration of pause
 pause_time = 0
@@ -123,16 +118,9 @@ for i in range(len(pitches_np)-1):
     else:
         pause_time = times_np[i-1]
 
-print(pause_time)
+print(crayons.blue(f'\t[*] Total Pause time => {[pause_time]}', bold=True))
+# finding total duration of file
 
-# finding total suration of file
-with contextlib.closing(wave.open(filename, 'r')) as f :
-    frame = f.getnframes()
-    frame_float = float(frame)
-    rate = f.getframerate()
-
-    duration = frame / float(rate)
-    print(duration)
 
 # for finding the word in the file
 r = sr.Recognizer()
@@ -145,7 +133,7 @@ text_speech = r.recognize_google(audio)
 
 play_time = duration - pause_time
 speak_rate = len(text_speech) / play_time
-print(speak_rate)
+print(crayons.yellow(f'\t[*] Speak rate => {speak_rate}', bold=True))
 
 # rise and fall of the voice logic is that when pitch value is increasig there will be an increase in the voice else fall
 num_rise = 0
@@ -163,17 +151,39 @@ for i in range(len(pitches_np)-1):
     else:
         continue
 
-print(num_rise)
-print(num_fall)
-
+print(crayons.yellow(f'\t[*] Number of voice_rise => {num_rise}', bold=True))
+print(crayons.yellow(f'\t[*] Number of voice_fall => {num_fall}', bold=True))
+'''
 # finding maximum duration of rise and fall of the voice in terms of time wrt pitch
 # getting problem in dealing with logic 
 
+rise_time = []
+fall_time = []
+for i in range(len(pitches_np)-1):
+    if (pitches_np[i] > 0 and pitches_np[i+1] > pitches_np[i]):
+        st_time = (time[i])
+        j = i + 1
+        while(pitches_np[j] > 0):
+            j = j+1
+        end_time = time[j]
+        time = abs(end_time-st_time)
+        rise_time.append(time)
 
+    elif pitches_np[i] == 0:
+        continue
 
+    else :
+        st_time = time[i]
+        j = i+1
+        while(pitches_np[j] < 0):
+            j = j+1
+        end_time = time[j]
+        time = abs(end_time-st_time)
+        fall_time.append(time)
 
-
-
+print(rise_time)
+print(fall_time)
+'''
 # analysing graphically the pitches 
 import os.path
 from numpy import array, ma
@@ -232,3 +242,4 @@ set_xlabels_sample2time(ax3, times[-1], samplerate)
 plt.show()
 # for saving the graph
 #plt.savefig(os.path.basename(filename) + '.svg')
+
