@@ -18,14 +18,14 @@ foo@bar pip install -r requirement.txt
 ```
 This will install all the necessary packages that is required to extract the features from an audio.
 
-### pitch.py file
+### pitch_feature.py file
 
 This file conatains the code that can find the pitch value with the help of a library **aubio** in python.
 Then with the help of pitch we can find other features like voice breaks, max/min/mean pitch value and many more see
 wiki for details.
 In order to see the result run the following command
 ```
-foo@bar python pitch.py /audio/human.wav
+foo@bar python pitch_feature.py /audio/human.wav
 ```
 
 ### energy.py
@@ -38,13 +38,13 @@ foo@bar python energy.py /audio/human.wav
 ```
 This will display the energy value at each regular interval as well as the energy band as a graph.
 
-### spectrogram.py
+### audio_graph.py
 
 This file is used to represent the audio in different format like spectrogram, spectrogram roll off, spectrogram centroid,
 mfcc etc.It uses the library **librosa** in python
 See the result by running this code
 ```
-foo@bar python spectrogram.py /audio/human.wav
+foo@bar python audio_graph.py /audio/human.wav
 ```
 The importnace of spectrogram is that it can easily be used as an input feature to any neural networl which can be used to extract some important features.
 
