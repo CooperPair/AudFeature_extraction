@@ -1,6 +1,8 @@
 # AudFeature_extraction
 An approach to extract most of the features from an audio file
 
+![Alt Text](./audio/audio.jpg)
+
 ### Createing virtual environment
  Run the following command in command shell
 ```
