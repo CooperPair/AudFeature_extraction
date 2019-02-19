@@ -3,7 +3,7 @@ An approach to extract most of the features from an audio file
 
 ![Alt Text](./audio/audio.jpg)
 
-### Createing virtual environment
+### Creating virtual environment
  Run the following command in command shell
 ```
 foo@baar python3 -m virtualenv audio
@@ -57,3 +57,6 @@ In order to see the result from this file run the following command in command s
 ```
 foo@bar python extra_feature_extract.py human.wav
 ```
+### create_waveform.py
+
+This file contains the functoin for creating different form of waveform for the file energy.py and pitch_feature.py.
