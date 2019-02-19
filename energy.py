@@ -1,12 +1,10 @@
-#! /usr/bin/env python
-
-# using the aubio aubio
-# describe file in terms of energy bands
+# describe audio file in terms of energy bands
 import sys
 from aubio import source, pvoc, filterbank
 from numpy import vstack, zeros
+import crayons
 
-win_s = 512                 # fft size
+win_s = 512                 # fft size(fast fourier transform)
 hop_s = win_s // 4          # hop size
 
 if len(sys.argv) < 2:
@@ -36,21 +34,22 @@ while True:
     samples, read = s()
     fftgrain = pv(samples)
     new_energies = f(fftgrain)
-    timestr = '%f' % (total_frames / float(samplerate) )
-    print('{:s} {:s}'.format(timestr, ' '.join(['%f' % b for b in new_energies])))
+    timestr = '%f' % (total_frames / float(samplerate))
+    #print(crayons.red(f'\t[*]',bold=Fals))
+    print(crayons.blue('\t{:s} {:s}'.format(timestr, ' '.join(['%f' % b for b in new_energies]))))
     energies = vstack( [energies, new_energies] )
     total_frames += read
     if read < hop_s: break
 
 if 1:
-    print("Done Computing, Now Plotting")
+    print(crayons.red(f'\t[*] Computation done, plotting the graph', bold=True))
     import matplotlib.pyplot as plt
-    from demo_waveform_plot import get_waveform_plot
-    from demo_waveform_plot import set_xlabels_sample2time
+    from create_waveform import create_waveform_plot
+    from create_waveform import set_xlabels_sample2time
     fig = plt.figure()
     plt.rc('lines',linewidth='.8')
     wave = plt.axes([0.1, 0.75, 0.8, 0.19])
-    get_waveform_plot(filename, samplerate, block_size = hop_s, ax = wave )
+    create_waveform_plot(filename, samplerate, block_size = hop_s, ax = wave )
     wave.yaxis.set_visible(False)
     wave.xaxis.set_visible(False)
 
@@ -71,3 +70,4 @@ if 1:
     plt.ylabel('spectral descriptor value')
     ax.xaxis.set_visible(True)
     plt.show()
+    print(crayons.red(f'\t[*] Plotting done', bold=True))

@@ -1,4 +1,3 @@
-# file for finding other features : 
 import sys
 import wave
 import contextlib
@@ -7,29 +6,14 @@ import numpy as np
 import speech_recognition as sr
 import os 
 import crayons
-# for ignoring any warnings if required
-import warnings
-warnings.simplefilter("ignore")
 
 if len(sys.argv) < 2:
     print("Usage: %s <filename> [samplerate]" % sys.argv[0])
     sys.exit(1)
 
-'''
-# for iterating over all the audio file
-directory = 'audio/'
-
-for filename in os.listdir(directory):
-    if filename.endswith(".wav"):
-        print(filename)
-    else:
-        continue
-'''
-
 filename = sys.argv[1]
 
 # calculating pitch
-
 downsample = 1
 samplerate = 44100 // downsample
 if len( sys.argv ) > 2: samplerate = int(sys.argv[2])
@@ -55,10 +39,7 @@ total_frames = 0
 while True:
     samples, read = s()
     pitch = pitch_o(samples)[0]
-    #pitch = int(round(pitch))
     confidence = pitch_o.get_confidence()
-    #if confidence < 0.8: pitch = 0.
-    #print("frames pitch confidence\n")
     time = total_frames / float(samplerate)
     print("%f %f %f" % (time, pitch, confidence))
     pitches += [pitch]
@@ -69,15 +50,15 @@ while True:
 
 if 0: sys.exit(0)
 
-# converting pitch value to numpy value
+# converting pitches values to numpy values
 pitches_np = np.array(pitches)
 times_np = np.array(times)
 print(pitches_np)
 # print(times_np)
 
-
-# code for finding number of voice breaks and percentage breaks and speak rates
-# logic used is that when pitch changes to zero there will be voice breaks
+# number of voice breaks
+# percentage breaks 
+# speak rate
 count = 0
 for i in range(len(pitches_np)-1):
     if pitches_np[i] == 0 and pitches_np[i] != pitches_np[i+1]:
@@ -87,21 +68,23 @@ for i in range(len(pitches_np)-1):
     else:
         continue
 
-print(count)
+# print(count)
 per_breaks = (count/len(pitches_np))*100
 #print(str(per_breaks)+"%")
 print(crayons.yellow(f'\t[*] Number of voice breaks => {count}', bold=True))
 print(crayons.yellow(f'\t[*] Percentage of voice breaks => {round(per_breaks,3)}', bold=True))
 
-# finding min, max and mean pitch
+# min, max and mean pitch
 pitches_np_max = np.max(pitches_np)
 print(crayons.red(f'\t[*] Maximum Pitch => {pitches_np_max}', bold=True))
 
 pitches_np_mean = np.mean(pitches_np)
 print(crayons.red(f'\t[*] Mean Pitch => {pitches_np_mean}', bold=True))
+
 pitches_np_min = np.min(pitches_np)
 print(crayons.red(f'\t[*] Minimum pitch => {pitches_np_min}', bold=True))
 
+# duration of audio file 
 with contextlib.closing(wave.open(filename, 'r')) as f :
     frame = f.getnframes()
     frame_float = float(frame)
@@ -109,8 +92,8 @@ with contextlib.closing(wave.open(filename, 'r')) as f :
 
     duration = frame / float(rate)
     print(crayons.blue(f'\t[*] Total Duration of file => {duration}', bold=True))
-# finding total duration of pause that is when the pitch of the file is 0
-# num of pause, max dur pause, average pause(wrt when it starts again), total duration of pause
+
+# total pause time when pitch is 0
 pause_time = 0
 for i in range(len(pitches_np)-1):
     if pitches_np[i] == 0:
@@ -119,10 +102,8 @@ for i in range(len(pitches_np)-1):
         pause_time = times_np[i-1]
 
 print(crayons.blue(f'\t[*] Total Pause time => {[pause_time]}', bold=True))
-# finding total duration of file
 
-
-# for finding the word in the file
+# word spoken by the human in the file
 r = sr.Recognizer()
 audio_sample = sr.AudioFile(sys.argv[1])
 
@@ -184,6 +165,7 @@ for i in range(len(pitches_np)-1):
 print(rise_time)
 print(fall_time)
 '''
+
 # analysing graphically the pitches 
 import os.path
 from numpy import array, ma
@@ -242,4 +224,3 @@ set_xlabels_sample2time(ax3, times[-1], samplerate)
 plt.show()
 # for saving the graph
 #plt.savefig(os.path.basename(filename) + '.svg')
-
